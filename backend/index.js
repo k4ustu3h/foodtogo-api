@@ -25,5 +25,5 @@ app.get("/", (req, res) => {
 app.use("/api/auth", require("./Routes/Auth"));
 
 app.listen(port, () => {
-	console.log(`Example app listening on http://localhost:${port}`);
+	console.log(`foodtogo/backend listening on http://localhost:${port}`);
 });

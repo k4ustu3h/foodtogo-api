@@ -1,6 +1,6 @@
 {
-  "name": "mernapp",
-  "version": "0.1.0",
+  "name": "foodtogo",
+  "version": "0.0.1",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.12.4",
@@ -24,6 +24,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
+  "author": "Jeenal Vora, Kaustubh Ladiya",
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -44,5 +45,8 @@
   },
   "devDependencies": {
     "prettier": "2.8.7"
-  }
+  },
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "main": "index.js",
+  "license": "GPL-3.0-or-later"
 }

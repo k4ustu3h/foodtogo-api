@@ -36,7 +36,7 @@ export default function Navbar(props) {
 			>
 				<div className="container-fluid">
 					<Link className="navbar-brand fs-1 fst-italic" to="/">
-						GoFood
+						Food To Go
 					</Link>
 					<button
 						className="navbar-toggler"
