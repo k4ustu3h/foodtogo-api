@@ -1,6 +1,6 @@
 import React from "react";
-import Delete from "@material-ui/icons/Delete";
 import { useCart, useDispatchCart } from "../components/ContextReducer";
+import { Icon } from "@iconify/react";
 export default function Cart() {
 	let data = useCart();
 	let dispatch = useDispatchCart();
@@ -63,12 +63,14 @@ export default function Cart() {
 								<td>{food.size}</td>
 								<td>{food.price}</td>
 								<td>
-									<button type="button" className="btn p-0">
-										<Delete
-											onClick={() => {
-												dispatch({ type: "REMOVE", index: index });
-											}}
-										/>
+									<button
+										type="button"
+										className="btn p-0"
+										onClick={() => {
+											dispatch({ type: "REMOVE", index: index });
+										}}
+									>
+										<Icon icon="ic:outline-delete" />
 									</button>{" "}
 								</td>
 							</tr>

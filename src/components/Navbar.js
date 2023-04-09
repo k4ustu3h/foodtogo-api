@@ -1,12 +1,10 @@
-/* eslint-disable react/jsx-no-undef */
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Badge from "@material-ui/core/Badge";
-import ShoppingCartIcon from "@material-ui/icons/ShoppingCart";
+import Badge from "@mui/material/Badge";
 import { useCart } from "./ContextReducer";
 import Modal from "../Modal";
 import Cart from "../screens/Cart";
+import { Icon } from "@iconify/react";
 export default function Navbar(props) {
 	const [cartView, setCartView] = useState(false);
 	localStorage.setItem("temp", "first");
@@ -91,8 +89,8 @@ export default function Navbar(props) {
 									className="btn bg-white text-success mx-2 "
 									onClick={loadCart}
 								>
-									<Badge color="secondary" badgeContent={items.length}>
-										<ShoppingCartIcon />
+									<Badge badgeContent={items.length} color="secondary">
+										<Icon icon="ic:outline-shopping-cart" />
 									</Badge>
 									Cart
 								</div>

@@ -38,7 +38,7 @@ export default function Home() {
 					data-bs-ride="carousel"
 				>
 					<div className="carousel-inner " id="carousel">
-						<div class=" carousel-caption  " style={{ zIndex: "9" }}>
+						<div className=" carousel-caption  " style={{ zIndex: "9" }}>
 							<div className=" d-flex justify-content-center">
 								{" "}
 								{/* justify-content-center, copy this <form> from navbar for search box */}
