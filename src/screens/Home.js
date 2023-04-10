@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Card from "../components/Card";
 // import Carousel from '../components/Carousel'
 import Footer from "../components/Footer";
-import Navbar from "../components/Navbar";
+import Navbar from "../components/NavBar";
 export default function Home() {
 	const [foodCat, setFoodCat] = useState([]);
 	const [foodItems, setFoodItems] = useState([]);

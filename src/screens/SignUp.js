@@ -12,7 +12,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { themeOptions } from "../styles/themeOptions";
 import { Icon } from "@iconify/react";
-import NavBar from "../components/Navbar";
+import NavBar from "../components/NavBar";
 
 export default function SignUp() {
 	const [credentials, setCredentials] = React.useState({

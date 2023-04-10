@@ -12,7 +12,7 @@ import Container from "@mui/material/Container";
 import { ThemeProvider } from "@mui/material/styles";
 import { themeOptions } from "../styles/themeOptions";
 import { Icon } from "@iconify/react";
-import NavBar from "../components/Navbar";
+import NavBar from "../components/NavBar";
 
 export default function Login() {
 	const [credentials, setCredentials] = useState({ email: "", password: "" });
