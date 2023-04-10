@@ -22,3 +22,7 @@ code {
 .carousalImg {
 	object-fit: contain !important;
 }
+
+a:hover {
+	color: inherit;
+}

@@ -1,14 +1,61 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import Badge from "@mui/material/Badge";
+import * as React from "react";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import Toolbar from "@mui/material/Toolbar";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import Menu from "@mui/material/Menu";
+import Container from "@mui/material/Container";
+import Avatar from "@mui/material/Avatar";
+import Button from "@mui/material/Button";
+import Tooltip from "@mui/material/Tooltip";
+import MenuItem from "@mui/material/MenuItem";
+import { Icon } from "@iconify/react";
+import { Badge, Stack, ThemeProvider } from "@mui/material";
+import { themeOptions } from "../styles/themeOptions";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useCart } from "./ContextReducer";
 import Modal from "../Modal";
 import Cart from "../screens/Cart";
-import { Icon } from "@iconify/react";
-export default function Navbar(props) {
-	const [cartView, setCartView] = useState(false);
+
+const pages = [
+	{ link: "#home", name: "Home" },
+	{ link: "#about", name: "About Us" },
+	{ link: "#services", name: "Services" },
+	{ link: "#menu", name: "Menu" },
+	{ link: "#contact", name: "Contact Us" },
+];
+
+export default function NavBar() {
+	const [anchorElNav, setAnchorElNav] = React.useState(null);
+	const [anchorElUser, setAnchorElUser] = React.useState(null);
+
+	const handleOpenNavMenu = (event) => {
+		setAnchorElNav(event.currentTarget);
+	};
+	const handleOpenUserMenu = (event) => {
+		setAnchorElUser(event.currentTarget);
+	};
+
+	const handleCloseNavMenu = () => {
+		setAnchorElNav(null);
+	};
+
+	const handleCloseUserMenu = () => {
+		setAnchorElUser(null);
+	};
+
+	const settings = [
+		{ link: "/profile", name: "Profile" },
+		{ link: "/account", name: "Account" },
+		{ link: "/myOrder", name: "My Orders" },
+	];
+
+	const [cartView, setCartView] = React.useState(false);
+
 	localStorage.setItem("temp", "first");
 	let navigate = useNavigate();
+
 	const handleLogout = () => {
 		localStorage.removeItem("token");
 
@@ -20,100 +67,200 @@ export default function Navbar(props) {
 	};
 
 	const items = useCart();
+
 	return (
-		<div>
-			<nav
-				className="navbar navbar-expand-lg navbar-dark bg-success position-sticky"
-				style={{
-					boxShadow: "0px 10px 20px black",
-					filter: "blur(20)",
-					position: "fixed",
-					zIndex: "10",
-					width: "100%",
-				}}
+		<ThemeProvider theme={themeOptions}>
+			<AppBar
+				position="fixed"
+				/*sx={{
+					background: "transparent",
+					boxShadow: "none",
+					backdropFilter: "blur(8px)",
+				}}*/
 			>
-				<div className="container-fluid">
-					<Link className="navbar-brand fs-1 fst-italic" to="/">
-						Food To Go
-					</Link>
-					<button
-						className="navbar-toggler"
-						type="button"
-						data-bs-toggle="collapse"
-						data-bs-target="#navbarSupportedContent"
-						aria-controls="navbarSupportedContent"
-						aria-expanded="false"
-						aria-label="Toggle navigation"
-					>
-						<span className="navbar-toggler-icon"></span>
-					</button>
-					<div className="collapse navbar-collapse" id="navbarSupportedContent">
-						<ul className="navbar-nav me-auto mb-2 mb-lg-0">
-							<li className="nav-item">
-								<Link
-									className="nav-link fs-5 mx-3 active"
-									aria-current="page"
-									to="/"
+				<Container maxWidth="xl">
+					<Toolbar disableGutters>
+						<Box sx={{ display: { xs: "none", md: "flex" }, mr: 1 }}>
+							<Icon icon="ic:outline-delivery-dining" width={24} />
+						</Box>
+						<Typography
+							variant="h6"
+							noWrap
+							component={RouterLink}
+							to="/"
+							sx={{
+								mr: 2,
+								display: { xs: "none", md: "flex" },
+								fontFamily: "sans-serif",
+								fontWeight: 700,
+								letterSpacing: ".1rem",
+								color: "inherit",
+								textDecoration: "none",
+							}}
+						>
+							Food To Go
+						</Typography>
+						<Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+							<IconButton
+								size="large"
+								aria-label="account of current user"
+								aria-controls="menu-appbar"
+								aria-haspopup="true"
+								onClick={handleOpenNavMenu}
+								color="inherit"
+							>
+								<Icon icon="ic:outline-menu" />
+							</IconButton>
+							<Menu
+								id="menu-appbar"
+								anchorEl={anchorElNav}
+								anchorOrigin={{
+									vertical: "bottom",
+									horizontal: "left",
+								}}
+								keepMounted
+								transformOrigin={{
+									vertical: "top",
+									horizontal: "left",
+								}}
+								open={Boolean(anchorElNav)}
+								onClose={handleCloseNavMenu}
+								sx={{
+									display: { xs: "block", md: "none" },
+								}}
+							>
+								{pages.map((page) => (
+									<MenuItem key={page.name} onClick={handleCloseNavMenu}>
+										<Typography textAlign="center">{page.name}</Typography>
+									</MenuItem>
+								))}
+							</Menu>
+						</Box>
+						<Box
+							sx={{
+								display: { xs: "flex", md: "none" },
+								mr: 1,
+								textOverflow: "ellipsis",
+							}}
+						>
+							<Icon icon="ic:outline-delivery-dining" width={32} />
+						</Box>
+
+						<Typography
+							variant="h5"
+							noWrap
+							component="a"
+							href=""
+							sx={{
+								mr: 2,
+								display: { xs: "flex", md: "none" },
+								flexGrow: 1,
+								fontFamily: "monospace",
+								fontWeight: 700,
+								letterSpacing: ".3rem",
+								color: "inherit",
+								textDecoration: "none",
+							}}
+						>
+							Food To Go
+						</Typography>
+						<Box
+							sx={{
+								flexGrow: 1,
+								display: { xs: "none", md: "flex" },
+								ml: 2,
+							}}
+						></Box>
+						<Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
+							{pages.map((page) => (
+								<Button
+									key={page.name}
+									href={page.link}
+									onClick={handleCloseNavMenu}
+									sx={{ my: 2, color: "white", display: "block" }}
 								>
-									Home
-								</Link>{" "}
-								{/* index.css - nav-link color white */}
-							</li>
-							{localStorage.getItem("token") ? (
-								<li className="nav-item">
-									<Link
-										className="nav-link fs-5 mx-3 active"
-										aria-current="page"
-										to="/myorder"
-									>
-										My Orders
-									</Link>{" "}
-									{/* index.css - nav-link color white */}
-								</li>
-							) : (
-								""
-							)}
-						</ul>
+									{page.name}
+								</Button>
+							))}
+						</Box>
+						{cartView ? (
+							<Modal onClose={() => setCartView(false)}>
+								<Cart />
+							</Modal>
+						) : null}
+
 						{!localStorage.getItem("token") ? (
-							<form className="d-flex">
-								<Link className="btn bg-white text-success mx-1 " to="/login">
+							<Stack direction="row" spacing={2}>
+								<Button component={RouterLink} to="/login" variant="contained">
 									Login
-								</Link>
-								<Link className="btn bg-white text-success mx-1" to="/signup">
-									Signup
-								</Link>
-							</form>
+								</Button>
+								<Button component={RouterLink} to="/signup" variant="contained">
+									Sign Up
+								</Button>
+							</Stack>
 						) : (
-							<div>
-								<div
-									className="btn bg-white text-success mx-2 "
-									onClick={loadCart}
-								>
-									<Badge badgeContent={items.length} color="secondary">
-										<Icon icon="ic:outline-shopping-cart" />
-									</Badge>
-									Cart
-								</div>
+							<>
+								<Box sx={{ flexGrow: 0 }}>
+									<IconButton
+										aria-label="Cart"
+										onClick={loadCart}
+										sx={{ mr: 2 }}
+									>
+										<Badge badgeContent={items.length} color="primary">
+											<Icon icon="ic:outline-shopping-cart" width={24} />
+										</Badge>
+									</IconButton>
+								</Box>
 
-								{cartView ? (
-									<Modal onClose={() => setCartView(false)}>
-										<Cart></Cart>
-									</Modal>
-								) : (
-									""
-								)}
-
-								<button
-									onClick={handleLogout}
-									className="btn bg-white text-success"
-								>
-									Logout
-								</button>
-							</div>
+								<Box sx={{ flexGrow: 0 }}>
+									<Tooltip title="Open settings">
+										<IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+											<Avatar>
+												<Icon icon="ic:round-person-outline" width={24} />
+											</Avatar>
+										</IconButton>
+									</Tooltip>
+									<Menu
+										sx={{ mt: "45px" }}
+										id="menu-appbar"
+										anchorEl={anchorElUser}
+										anchorOrigin={{
+											vertical: "top",
+											horizontal: "right",
+										}}
+										keepMounted
+										transformOrigin={{
+											vertical: "top",
+											horizontal: "right",
+										}}
+										open={Boolean(anchorElUser)}
+										onClose={handleCloseUserMenu}
+									>
+										{settings.map((setting) => (
+											<Box
+												component={RouterLink}
+												to={setting.link}
+												key={setting.name}
+												sx={{ color: "inherit", textDecoration: "none" }}
+											>
+												<MenuItem onClick={handleCloseUserMenu}>
+													<Typography textAlign="center">
+														{setting.name}
+													</Typography>
+												</MenuItem>
+											</Box>
+										))}
+										<MenuItem key="LogOut" onClick={handleLogout}>
+											<Typography textAlign="center">Log Out</Typography>
+										</MenuItem>
+									</Menu>
+								</Box>
+							</>
 						)}
-					</div>
-				</div>
-			</nav>
-		</div>
+					</Toolbar>
+				</Container>
+			</AppBar>
+			<Toolbar />
+		</ThemeProvider>
 	);
 }
