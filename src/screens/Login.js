@@ -1,6 +1,19 @@
 import React, { useState } from "react";
-import Navbar from "../components/Navbar";
-import { useNavigate, Link } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import Avatar from "@mui/material/Avatar";
+import Button from "@mui/material/Button";
+import CssBaseline from "@mui/material/CssBaseline";
+import TextField from "@mui/material/TextField";
+import Link from "@mui/material/Link";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
+import { ThemeProvider } from "@mui/material/styles";
+import { themeOptions } from "../styles/themeOptions";
+import { Icon } from "@iconify/react";
+import NavBar from "../components/Navbar";
+
 export default function Login() {
 	const [credentials, setCredentials] = useState({ email: "", password: "" });
 	let navigate = useNavigate();
@@ -8,8 +21,6 @@ export default function Login() {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		const response = await fetch("http://localhost:5000/api/auth/login", {
-			// credentials: 'include',
-			// Origin:"http://localhost:3000/login",
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -22,7 +33,6 @@ export default function Login() {
 		const json = await response.json();
 		console.log(json);
 		if (json.success) {
-			//save the auth toke to local storage and redirect
 			localStorage.setItem("userEmail", credentials.email);
 			localStorage.setItem("token", json.authToken);
 			navigate("/");
@@ -36,62 +46,77 @@ export default function Login() {
 	};
 
 	return (
-		<div
-			style={{
-				backgroundImage:
-					'url("https://images.pexels.com/photos/326278/pexels-photo-326278.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1")',
-				height: "100vh",
-				backgroundSize: "cover",
-			}}
-		>
-			<div>
-				<Navbar />
-			</div>
-			<div className="container">
-				<form
-					className="w-50 m-auto mt-5 border bg-dark border-success rounded"
-					onSubmit={handleSubmit}
+		<ThemeProvider theme={themeOptions}>
+			<Container component="main" maxWidth="xs">
+				<CssBaseline />
+				<NavBar />
+				<Box
+					sx={{
+						marginTop: 8,
+						display: "flex",
+						flexDirection: "column",
+						alignItems: "center",
+					}}
 				>
-					<div className="m-3">
-						<label htmlFor="exampleInputEmail1" className="form-label">
-							Email address
-						</label>
-						<input
-							type="email"
-							className="form-control"
+					<Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+						<Icon icon="ic:outline-lock" width="24" />
+					</Avatar>
+					<Typography component="h1" variant="h5">
+						Log in
+					</Typography>
+					<Box
+						component="form"
+						onSubmit={handleSubmit}
+						noValidate
+						sx={{ mt: 1 }}
+					>
+						<TextField
+							margin="normal"
+							required
+							fullWidth
+							id="email"
+							label="Email Address"
 							name="email"
+							autoComplete="email"
+							autoFocus
 							value={credentials.email}
 							onChange={onChange}
-							aria-describedby="emailHelp"
 						/>
-						<div id="emailHelp" className="form-text">
-							We'll never share your email with anyone.
-						</div>
-					</div>
-					<div className="m-3">
-						<label htmlFor="exampleInputPassword1" className="form-label">
-							Password
-						</label>
-						<input
+						<TextField
+							margin="normal"
+							required
+							fullWidth
+							name="password"
+							label="Password"
 							type="password"
-							className="form-control"
+							id="password"
+							autoComplete="current-password"
 							value={credentials.password}
 							onChange={onChange}
-							name="password"
 						/>
-					</div>
-					<button type="submit" className="m-3 btn btn-success">
-						Submit
-					</button>
-					<Link to="/signup" className="m-3 mx-1 btn btn-danger">
-						New User
-					</Link>
-				</form>
-			</div>
-		</div>
+						<Button
+							type="submit"
+							fullWidth
+							variant="contained"
+							sx={{ mt: 3, mb: 2 }}
+						>
+							Log In
+						</Button>
+						<Grid container>
+							<Grid item xs>
+								<Link component={RouterLink} to="/" variant="body2">
+									Forgot password?
+								</Link>
+							</Grid>
+							<Grid item>
+								<Link component={RouterLink} to="/signup" variant="body2">
+									{"Don't have an account? Sign Up"}
+								</Link>
+							</Grid>
+						</Grid>
+					</Box>
+				</Box>
+			</Container>
+		</ThemeProvider>
 	);
 }
-
-// , 'Accept': 'application/json',
-//         'Access-Control-Allow-Origin': 'http://localhost:3000/login', 'Access-Control-Allow-Credentials': 'true',
-//         "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",'Access-Control-Allow-Methods': 'PUT, POST, GET, DELETE, OPTIONS'
