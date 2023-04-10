@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 require("dotenv").config({ path: "../.env" });
 
 const mongoURI = process.env.MONGODB_CONNECTION_STRING;
+
 module.exports = function (callback) {
 	mongoose.connect(mongoURI, { useNewUrlParser: true }, async (err, result) => {
 		// mongoDbClient.connect(mongoURI, { useNewUrlParser: true }, async(err, result) => {
@@ -14,7 +15,7 @@ module.exports = function (callback) {
 			);
 			foodCollection.find({}).toArray(async function (err, data) {
 				const categoryCollection = await mongoose.connection.db.collection(
-					"Categories"
+					"foodCategory"
 				);
 				categoryCollection.find({}).toArray(async function (err, Catdata) {
 					callback(err, data, Catdata);

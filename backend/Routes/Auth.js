@@ -7,7 +7,9 @@ const bcrypt = require("bcryptjs");
 var jwt = require("jsonwebtoken");
 const axios = require("axios");
 const fetch = require("../middleware/fetchdetails");
-const jwtSecret = "HaHa";
+require("dotenv").config({ path: "../.env" });
+
+const jwtSecret = process.env.JWT_SECRET;
 // var foodItems= require('../index').foodData;
 // require("../index")
 //Creating a user and storing data to MongoDB Atlas, No Login Requiered
@@ -76,14 +78,14 @@ router.post(
 			if (!user) {
 				return res
 					.status(400)
-					.json({ success, error: "Try Logging in with correct credentials" });
+					.json({ success, error: "Try Logging in with correct email" });
 			}
 
 			const pwdCompare = await bcrypt.compare(password, user.password); // this return true false.
 			if (!pwdCompare) {
 				return res
 					.status(400)
-					.json({ success, error: "Try Logging in with correct credentials" });
+					.json({ success, error: "Try Logging in with correct password" });
 			}
 			const data = {
 				user: {
