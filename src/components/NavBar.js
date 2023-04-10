@@ -11,11 +11,9 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { Icon } from "@iconify/react";
-import { Badge, Stack, ThemeProvider } from "@mui/material";
+import { Stack, ThemeProvider } from "@mui/material";
 import { themeOptions } from "../styles/themeOptions";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { useCart } from "./ContextReducer";
-import Modal from "../Modal";
 import Cart from "../screens/Cart";
 
 const pages = [
@@ -51,8 +49,6 @@ export default function NavBar() {
 		{ link: "/myOrder", name: "My Orders" },
 	];
 
-	const [cartView, setCartView] = React.useState(false);
-
 	localStorage.setItem("temp", "first");
 	let navigate = useNavigate();
 
@@ -61,12 +57,6 @@ export default function NavBar() {
 
 		navigate("/login");
 	};
-
-	const loadCart = () => {
-		setCartView(true);
-	};
-
-	const items = useCart();
 
 	return (
 		<ThemeProvider theme={themeOptions}>
@@ -183,11 +173,6 @@ export default function NavBar() {
 								</Button>
 							))}
 						</Box>
-						{cartView ? (
-							<Modal onClose={() => setCartView(false)}>
-								<Cart />
-							</Modal>
-						) : null}
 
 						{!localStorage.getItem("token") ? (
 							<Stack direction="row" spacing={2}>
@@ -201,15 +186,7 @@ export default function NavBar() {
 						) : (
 							<>
 								<Box sx={{ flexGrow: 0 }}>
-									<IconButton
-										aria-label="Cart"
-										onClick={loadCart}
-										sx={{ mr: 2 }}
-									>
-										<Badge badgeContent={items.length} color="primary">
-											<Icon icon="ic:outline-shopping-cart" width={24} />
-										</Badge>
-									</IconButton>
+									<Cart />
 								</Box>
 
 								<Box sx={{ flexGrow: 0 }}>

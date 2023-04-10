@@ -1,27 +1,44 @@
-import React from "react";
+import * as React from "react";
+import Box from "@mui/material/Box";
+import Drawer from "@mui/material/Drawer";
+import Button from "@mui/material/Button";
 import { useCart, useDispatchCart } from "../components/ContextReducer";
 import { Icon } from "@iconify/react";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
+import { Badge, IconButton, Typography } from "@mui/material";
+
 export default function Cart() {
+	const [state, setState] = React.useState({
+		right: false,
+	});
+
+	const toggleDrawer = (anchor, open) => (event) => {
+		if (
+			event.type === "keydown" &&
+			(event.key === "Tab" || event.key === "Shift")
+		) {
+			return;
+		}
+
+		setState({ ...state, [anchor]: open });
+	};
+
 	let data = useCart();
 	let dispatch = useDispatchCart();
-	if (data.length === 0) {
-		return (
-			<div>
-				<div className="m-5 w-100 text-center fs-3">The Cart is Empty!</div>
-			</div>
-		);
-	}
-	// const handleRemove = (index)=>{
-	//   console.log(index)
-	//   dispatch({type:"REMOVE",index:index})
-	// }
+
+	const handleRemove = (index) => {
+		dispatch({ type: "REMOVE", index: index });
+	};
 
 	const handleCheckOut = async () => {
 		let userEmail = localStorage.getItem("userEmail");
-		// console.log(data,localStorage.getItem("userEmail"),new Date())
 		let response = await fetch("http://localhost:5000/api/auth/orderData", {
-			// credentials: 'include',
-			// Origin:"http://localhost:3000/login",
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -39,54 +56,85 @@ export default function Cart() {
 	};
 
 	let totalPrice = data.reduce((total, food) => total + food.price, 0);
+
 	return (
 		<div>
-			{console.log(data)}
-			<div className="container m-auto mt-5 table-responsive  table-responsive-sm table-responsive-md">
-				<table className="table table-hover ">
-					<thead className=" text-success fs-4">
-						<tr>
-							<th scope="col">#</th>
-							<th scope="col">Name</th>
-							<th scope="col">Quantity</th>
-							<th scope="col">Option</th>
-							<th scope="col">Amount</th>
-							<th scope="col"></th>
-						</tr>
-					</thead>
-					<tbody>
-						{data.map((food, index) => (
-							<tr>
-								<th scope="row">{index + 1}</th>
-								<td>{food.name}</td>
-								<td>{food.qty}</td>
-								<td>{food.size}</td>
-								<td>{food.price}</td>
-								<td>
-									<button
-										type="button"
-										className="btn p-0"
-										onClick={() => {
-											dispatch({ type: "REMOVE", index: index });
-										}}
-									>
-										<Icon icon="ic:outline-delete" />
-									</button>{" "}
-								</td>
-							</tr>
-						))}
-					</tbody>
-				</table>
-				<div>
-					<h1 className="fs-2">Total Price: {totalPrice}/-</h1>
-				</div>
-				<div>
-					<button className="btn bg-success mt-5 " onClick={handleCheckOut}>
-						{" "}
-						Check Out{" "}
-					</button>
-				</div>
-			</div>
+			<React.Fragment key="anchor">
+				<IconButton
+					aria-label="Cart"
+					onClick={toggleDrawer("right", true)}
+					sx={{ mr: 2 }}
+				>
+					<Badge badgeContent={data.length} color="primary">
+						<Icon icon="ic:outline-shopping-cart" width={24} />
+					</Badge>
+				</IconButton>
+				<Drawer
+					anchor="right"
+					open={state["right"]}
+					onClose={toggleDrawer("right", false)}
+				>
+					{data.length === 0 ? (
+						<Box
+							sx={{ width: 800 }}
+							role="presentation"
+							onKeyDown={toggleDrawer("right", false)}
+						>
+							<Typography variant="h4">The Cart is Empty!</Typography>
+						</Box>
+					) : (
+						<Box
+							sx={{ width: 800 }}
+							role="presentation"
+							onKeyDown={toggleDrawer("right", false)}
+						>
+							<TableContainer component={Paper}>
+								<Table sx={{ minWidth: 650 }} aria-label="simple table">
+									<TableHead>
+										<TableRow>
+											<TableCell>#</TableCell>
+											<TableCell align="right">Name</TableCell>
+											<TableCell align="right">Quantity</TableCell>
+											<TableCell align="right">Option</TableCell>
+											<TableCell align="right">Amount</TableCell>
+											<TableCell align="right"></TableCell>
+										</TableRow>
+									</TableHead>
+									<TableBody>
+										{data.map((food, index) => (
+											<TableRow
+												key={food.name}
+												sx={{
+													"&:last-child td, &:last-child th": { border: 0 },
+												}}
+											>
+												<TableCell component="th" scope="row">
+													{index + 1}
+												</TableCell>
+												<TableCell align="right">{food.name}</TableCell>
+												<TableCell align="right">{food.qty}</TableCell>
+												<TableCell align="right">{food.size}</TableCell>
+												<TableCell align="right">{food.price}</TableCell>
+												<TableCell align="right">
+													<IconButton onClick={handleRemove}>
+														<Icon icon="ic:outline-delete" />
+													</IconButton>
+												</TableCell>
+											</TableRow>
+										))}
+									</TableBody>
+								</Table>
+								<Typography variant="h6">
+									Total Price: {totalPrice}/-
+								</Typography>
+							</TableContainer>
+							<Button onClick={handleCheckOut} variant="contained">
+								Checkout
+							</Button>
+						</Box>
+					)}
+				</Drawer>
+			</React.Fragment>
 		</div>
 	);
 }
