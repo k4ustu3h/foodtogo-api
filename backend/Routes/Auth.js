@@ -10,15 +10,14 @@ const fetch = require("../middleware/fetchdetails");
 require("dotenv").config({ path: "../.env" });
 
 const jwtSecret = process.env.JWT_SECRET;
-// var foodItems= require('../index').foodData;
-// require("../index")
-//Creating a user and storing data to MongoDB Atlas, No Login Requiered
+
 router.post(
 	"/createuser",
 	[
+		body("firstName").isLength({ min: 2 }),
+		body("lastName").isLength({ min: 2 }),
 		body("email").isEmail(),
 		body("password").isLength({ min: 5 }),
-		body("name").isLength({ min: 3 }),
 	],
 	async (req, res) => {
 		let success = false;
@@ -26,14 +25,13 @@ router.post(
 		if (!errors.isEmpty()) {
 			return res.status(400).json({ success, errors: errors.array() });
 		}
-		// console.log(req.body)
-		// let user = await User.findOne({email:req.body.email})
+
 		const salt = await bcrypt.genSalt(10);
 		let securePass = await bcrypt.hash(req.body.password, salt);
 		try {
 			await User.create({
-				name: req.body.name,
-				// password: req.body.password,  first write this and then use bcryptjs
+				firstName: req.body.firstName,
+				lastName: req.body.lastName,
 				password: securePass,
 				email: req.body.email,
 				location: req.body.location,
@@ -58,7 +56,6 @@ router.post(
 	}
 );
 
-// Authentication a User, No login Requiered
 router.post(
 	"/login",
 	[
@@ -74,18 +71,18 @@ router.post(
 
 		const { email, password } = req.body;
 		try {
-			let user = await User.findOne({ email }); //{email:email} === {email}
+			let user = await User.findOne({ email });
 			if (!user) {
 				return res
 					.status(400)
-					.json({ success, error: "Try Logging in with correct email" });
+					.json({ success, error: "Try Logging in with correct the email" });
 			}
 
-			const pwdCompare = await bcrypt.compare(password, user.password); // this return true false.
+			const pwdCompare = await bcrypt.compare(password, user.password);
 			if (!pwdCompare) {
 				return res
 					.status(400)
-					.json({ success, error: "Try Logging in with correct password" });
+					.json({ success, error: "Try Logging in with correct the password" });
 			}
 			const data = {
 				user: {
@@ -102,18 +99,17 @@ router.post(
 	}
 );
 
-// Get logged in User details, Login Required.
 router.post("/getuser", fetch, async (req, res) => {
 	try {
 		const userId = req.user.id;
-		const user = await User.findById(userId).select("-password"); // -password will not pick password from db.
+		const user = await User.findById(userId).select("-password");
 		res.send(user);
 	} catch (error) {
 		console.error(error.message);
 		res.send("Server Error");
 	}
 });
-// Get logged in User details, Login Required.
+
 router.post("/getlocation", async (req, res) => {
 	try {
 		let lat = req.body.latlong.lat;
@@ -128,10 +124,7 @@ router.post("/getlocation", async (req, res) => {
 					"&key=74c89b3be64946ac96d777d08b878d43"
 			)
 			.then(async (res) => {
-				// console.log(`statusCode: ${res.status}`)
 				console.log(res.data.results);
-				// let response = stringify(res)
-				// response = await JSON.parse(response)
 				let response = res.data.results[0].components;
 				console.log(response);
 				let { village, county, state_district, state, postcode } = response;
@@ -158,9 +151,6 @@ router.post("/getlocation", async (req, res) => {
 });
 router.post("/foodData", async (req, res) => {
 	try {
-		// console.log( JSON.stringify(global.foodData))
-		// const userId = req.user.id;
-		// await database.listCollections({name:"food_items"}).find({});
 		res.send([global.foodData, global.foodCategory]);
 	} catch (error) {
 		console.error(error.message);
@@ -172,8 +162,6 @@ router.post("/orderData", async (req, res) => {
 	let data = req.body.order_data;
 	await data.splice(0, 0, { Order_date: req.body.order_date });
 	console.log("1231242343242354", req.body.email);
-
-	//if email not exisitng in db then create: else: InsertMany()
 	let eId = await Order.findOne({ email: req.body.email });
 	console.log(eId);
 	if (eId === null) {
@@ -209,7 +197,6 @@ router.post("/myOrderData", async (req, res) => {
 	try {
 		console.log(req.body.email);
 		let eId = await Order.findOne({ email: req.body.email });
-		//console.log(eId)
 		res.json({ orderData: eId });
 	} catch (error) {
 		res.send("Error", error.message);

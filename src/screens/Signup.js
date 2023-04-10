@@ -1,55 +1,40 @@
-import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import Navbar from "../components/Navbar";
-export default function Signup() {
-	const [credentials, setCredentials] = useState({
-		name: "",
+import * as React from "react";
+import Avatar from "@mui/material/Avatar";
+import Button from "@mui/material/Button";
+import CssBaseline from "@mui/material/CssBaseline";
+import TextField from "@mui/material/TextField";
+import Link from "@mui/material/Link";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
+import { ThemeProvider } from "@mui/material/styles";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { themeOptions } from "../styles/themeOptions";
+import { Icon } from "@iconify/react";
+import NavBar from "../components/Navbar";
+
+export default function SignUp() {
+	const [credentials, setCredentials] = React.useState({
+		firstName: "",
+		lastName: "",
 		email: "",
 		password: "",
 		geolocation: "",
 	});
-	let [address, setAddress] = useState("");
-	let navigate = useNavigate();
 
-	const handleClick = async (e) => {
-		e.preventDefault();
-		let navLocation = () => {
-			return new Promise((res, rej) => {
-				navigator.geolocation.getCurrentPosition(res, rej);
-			});
-		};
-		let latlong = await navLocation().then((res) => {
-			let latitude = res.coords.latitude;
-			let longitude = res.coords.longitude;
-			return [latitude, longitude];
-		});
-		// console.log(latlong)
-		let [lat, long] = latlong;
-		console.log(lat, long);
-		const response = await fetch("http://localhost:5000/api/auth/getlocation", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ latlong: { lat, long } }),
-		});
-		const { location } = await response.json();
-		console.log(location);
-		setAddress(location);
-		setCredentials({ ...credentials, [e.target.name]: location });
-	};
+	let navigate = useNavigate();
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		const response = await fetch("http://localhost:5000/api/auth/createuser", {
-			// credentials: 'include',
-			// Origin:"http://localhost:3000/login",
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
-				name: credentials.name,
+				firstName: credentials.firstName,
+				lastName: credentials.lastName,
 				email: credentials.email,
 				password: credentials.password,
 				location: credentials.geolocation,
@@ -71,95 +56,112 @@ export default function Signup() {
 	};
 
 	return (
-		<div
-			style={{
-				backgroundImage:
-					'url("https://images.pexels.com/photos/1565982/pexels-photo-1565982.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1")',
-				backgroundSize: "cover",
-				height: "100vh",
-			}}
-		>
-			<div>
-				<Navbar />
-			</div>
-
-			<div className="container">
-				<form
-					className="w-50 m-auto mt-5 border bg-dark border-success rounded"
-					onSubmit={handleSubmit}
+		<ThemeProvider theme={themeOptions}>
+			<Container component="main" maxWidth="xs">
+				<CssBaseline />
+				<NavBar />
+				<Box
+					sx={{
+						marginTop: 8,
+						display: "flex",
+						flexDirection: "column",
+						alignItems: "center",
+					}}
 				>
-					<div className="m-3">
-						<label htmlFor="name" className="form-label">
-							Name
-						</label>
-						<input
-							type="text"
-							className="form-control"
-							name="name"
-							value={credentials.name}
-							onChange={onChange}
-							aria-describedby="emailHelp"
-						/>
-					</div>
-					<div className="m-3">
-						<label htmlFor="email" className="form-label">
-							Email address
-						</label>
-						<input
-							type="email"
-							className="form-control"
-							name="email"
-							value={credentials.email}
-							onChange={onChange}
-							aria-describedby="emailHelp"
-						/>
-					</div>
-					<div className="m-3">
-						<label htmlFor="address" className="form-label">
-							Address
-						</label>
-						<fieldset>
-							<input
-								type="text"
-								className="form-control"
-								name="address"
-								placeholder='"Click below for fetching address"'
-								value={address}
-								onChange={(e) => setAddress(e.target.value)}
-								aria-describedby="emailHelp"
-							/>
-						</fieldset>
-					</div>
-					<div className="m-3">
-						<button
-							type="button"
-							onClick={handleClick}
-							name="geolocation"
-							className=" btn btn-success"
+					<Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+						<Icon icon="ic:outline-lock" width="24" />
+					</Avatar>
+					<Typography component="h1" variant="h5">
+						Sign up
+					</Typography>
+					<Box
+						component="form"
+						noValidate
+						onSubmit={handleSubmit}
+						sx={{ mt: 3 }}
+					>
+						<Grid container spacing={2}>
+							<Grid item xs={12} sm={6}>
+								<TextField
+									autoComplete="given-name"
+									name="firstName"
+									required
+									fullWidth
+									id="firstName"
+									label="First Name"
+									autoFocus
+									value={credentials.firstName}
+									onChange={onChange}
+								/>
+							</Grid>
+							<Grid item xs={12} sm={6}>
+								<TextField
+									required
+									fullWidth
+									id="lastName"
+									label="Last Name"
+									name="lastName"
+									autoComplete="family-name"
+									value={credentials.lastName}
+									onChange={onChange}
+								/>
+							</Grid>
+							<Grid item xs={12}>
+								<TextField
+									required
+									fullWidth
+									id="email"
+									label="Email Address"
+									name="email"
+									autoComplete="email"
+									value={credentials.email}
+									onChange={onChange}
+								/>
+							</Grid>
+							<Grid item xs={12}>
+								<TextField
+									required
+									fullWidth
+									name="password"
+									label="Password"
+									type="password"
+									id="password"
+									autoComplete="new-password"
+									value={credentials.password}
+									onChange={onChange}
+								/>
+							</Grid>
+							<Grid item xs={12}>
+								<TextField
+									required
+									fullWidth
+									name="geolocation"
+									label="Enter your address."
+									id="geolocation"
+									autoComplete="address-level2"
+									value={credentials.geolocation}
+									onChange={onChange}
+								/>
+							</Grid>
+						</Grid>
+						<Button
+							type="submit"
+							fullWidth
+							variant="contained"
+							sx={{ mt: 3, mb: 2 }}
 						>
-							Click for current Location{" "}
-						</button>
-					</div>
-					<div className="m-3">
-						<label htmlFor="exampleInputPassword1" className="form-label">
-							Password
-						</label>
-						<input
-							type="password"
-							className="form-control"
-							value={credentials.password}
-							onChange={onChange}
-							name="password"
-						/>
-					</div>
-					<button type="submit" className="m-3 btn btn-success">
-						Submit
-					</button>
-					<Link to="/login" className="m-3 mx-1 btn btn-danger">
-						Already a user
-					</Link>
-				</form>
-			</div>
-		</div>
+							Sign Up
+						</Button>
+						<Grid container justifyContent="flex-end">
+							<Grid item>
+								<Link component={RouterLink} to="/login" variant="body2">
+									Already have an account? Sign in
+								</Link>
+							</Grid>
+						</Grid>
+					</Box>
+				</Box>
+			</Container>
+		</ThemeProvider>
 	);
 }
