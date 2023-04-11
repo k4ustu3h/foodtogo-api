@@ -12,6 +12,11 @@ const OrderSchema = new Schema({
 		type: Array,
 		required: true,
 	},
+	razorpayDetails: {
+		orderId: String,
+		paymentId: String,
+		signature: String,
+	},
 });
 
-module.exports = mongoose.model("order", OrderSchema);
+module.exports = mongoose.model("orders", OrderSchema);

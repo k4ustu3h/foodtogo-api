@@ -1,7 +1,6 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
-import Button from "@mui/material/Button";
 import { useCart, useDispatchCart } from "../components/ContextReducer";
 import { Icon } from "@iconify/react";
 import Table from "@mui/material/Table";
@@ -12,6 +11,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { Badge, IconButton, Typography } from "@mui/material";
+import Checkout from "../components/Checkout";
 
 export default function Cart() {
 	const [state, setState] = React.useState({
@@ -34,25 +34,6 @@ export default function Cart() {
 
 	const handleRemove = (index) => {
 		dispatch({ type: "REMOVE", index: index });
-	};
-
-	const handleCheckOut = async () => {
-		let userEmail = localStorage.getItem("userEmail");
-		let response = await fetch("http://localhost:5000/api/auth/orderData", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				order_data: data,
-				email: userEmail,
-				order_date: new Date().toDateString(),
-			}),
-		});
-		console.log("JSON RESPONSE:::::", response.status);
-		if (response.status === 200) {
-			dispatch({ type: "DROP" });
-		}
 	};
 
 	let totalPrice = data.reduce((total, food) => total + food.price, 0);
@@ -128,9 +109,7 @@ export default function Cart() {
 									Total Price: {totalPrice}/-
 								</Typography>
 							</TableContainer>
-							<Button onClick={handleCheckOut} variant="contained">
-								Checkout
-							</Button>
+							<Checkout />
 						</Box>
 					)}
 				</Drawer>

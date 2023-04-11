@@ -7,6 +7,7 @@ const bcrypt = require("bcryptjs");
 var jwt = require("jsonwebtoken");
 const axios = require("axios");
 const fetch = require("../middleware/fetchdetails");
+const Razorpay = require("razorpay");
 require("dotenv").config({ path: "../.env" });
 
 const jwtSecret = process.env.JWT_SECRET;
@@ -158,10 +159,42 @@ router.post("/foodData", async (req, res) => {
 	}
 });
 
+router.post("/orders", async (req, res) => {
+	try {
+		const instance = new Razorpay({
+			key_id: process.env.RAZORPAY_KEY_ID, // YOUR RAZORPAY KEY
+			key_secret: process.env.RAZORPAY_SECRET, // YOUR RAZORPAY SECRET
+		});
+
+		const options = {
+			amount: 50000,
+			currency: "INR",
+			receipt: "receipt_order_74394",
+		};
+
+		const order = await instance.orders.create(options);
+
+		if (!order) return res.status(500).send("Some error occured");
+
+		res.json(order);
+	} catch (error) {
+		res.status(500).send(error);
+	}
+});
+
 router.post("/orderData", async (req, res) => {
+	const { razorpayPaymentId, razorpayOrderId, razorpaySignature } = req.body;
 	let data = req.body.order_data;
-	await data.splice(0, 0, { Order_date: req.body.order_date });
-	console.log("1231242343242354", req.body.email);
+	await data.splice(0, 0, {
+		Order_date: req.body.order_date,
+		Order_time: req.body.order_time,
+		razorpayDetails: {
+			orderId: razorpayOrderId,
+			paymentId: razorpayPaymentId,
+			signature: razorpaySignature,
+		},
+	});
+	console.log(req.body.email);
 	let eId = await Order.findOne({ email: req.body.email });
 	console.log(eId);
 	if (eId === null) {
@@ -172,7 +205,9 @@ router.post("/orderData", async (req, res) => {
 				email: req.body.email,
 				order_data: [data],
 			}).then(() => {
-				res.json({ success: true });
+				res.json({
+					success: true,
+				});
 			});
 		} catch (error) {
 			console.log(error.message);
