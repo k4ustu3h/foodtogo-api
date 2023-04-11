@@ -15,6 +15,7 @@ import { Stack, ThemeProvider } from "@mui/material";
 import { themeOptions } from "../styles/themeOptions";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import Cart from "../screens/Cart";
+import { ScrollToTop } from "./ScrollToTop";
 
 const pages = [
 	{ link: "#home", name: "Home" },
@@ -237,7 +238,8 @@ export default function NavBar() {
 					</Toolbar>
 				</Container>
 			</AppBar>
-			<Toolbar />
+			<Toolbar id="back-to-top-anchor" />
+			<ScrollToTop />
 		</ThemeProvider>
 	);
 }
