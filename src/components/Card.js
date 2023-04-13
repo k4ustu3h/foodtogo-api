@@ -1,13 +1,45 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatchCart, useCart } from "./ContextReducer";
+import Button from "@mui/material/Button";
+import ButtonGroup from "@mui/material/ButtonGroup";
+import Card from "@mui/material/Card";
+import CardActions from "@mui/material/CardActions";
+import CardContent from "@mui/material/CardContent";
+import CardMedia from "@mui/material/CardMedia";
+import Collapse from "@mui/material/Collapse";
+import FormControl from "@mui/material/FormControl";
+import IconButton from "@mui/material/IconButton";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
+import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
+import { Icon } from "@iconify/react";
+import { styled } from "@mui/material/";
 
-export default function Card(props) {
+const ExpandMore = styled((props) => {
+	const { expand, ...other } = props;
+	return (
+		<Tooltip title="Show more options">
+			<IconButton {...other} />
+		</Tooltip>
+	);
+})(({ theme, expand }) => ({
+	transform: !expand ? "rotate(0deg)" : "rotate(180deg)",
+	marginRight: "auto",
+	transition: theme.transitions.create("transform", {
+		duration: theme.transitions.duration.shortest,
+	}),
+}));
+
+export default function FoodItems(props) {
 	let data = useCart();
 
 	let navigate = useNavigate();
 	const [qty, setQty] = useState(1);
 	const [size, setSize] = useState("");
+	const [expanded, setExpanded] = React.useState(false);
 	const priceRef = useRef();
 
 	let options = props.options;
@@ -71,68 +103,115 @@ export default function Card(props) {
 		});
 	};
 
+	const handleExpandClick = () => {
+		setExpanded(!expanded);
+	};
+
 	useEffect(() => {
 		setSize(priceRef.current.value);
 	}, []);
 
 	let finalPrice = qty * parseInt(options[size]);
 	return (
-		<div>
-			<div className="card mt-3" style={{ width: "16rem", maxHeight: "360px" }}>
-				<img
-					src={props.ImgSrc}
-					className="card-img-top"
-					alt="..."
-					style={{ height: "120px", objectFit: "fill" }}
+		<React.Fragment>
+			<Card sx={{ width: 258, borderRadius: 4 }}>
+				<CardMedia
+					sx={{ height: 176, borderRadius: 4 }}
+					image={props.ImgSrc}
+					title={props.foodName}
 				/>
-				<div className="card-body">
-					<h5 className="card-title">{props.foodName}</h5>
-					<p className="card-text">{props.description}</p>
-					<div className="container w-100 p-0" style={{ height: "38px" }}>
-						<select
-							className="m-2 h-100 w-20 bg-success text-black rounded"
-							style={{ select: "#FF0000" }}
-							onClick={handleClick}
-							onChange={handleQty}
-						>
-							{" "}
-							{Array.from(Array(6), (e, i) => {
-								return (
-									<option key={i + 1} value={i + 1}>
-										{i + 1}
-									</option>
-								);
-							})}
-						</select>
-						<select
-							className="m-2 h-100 w-20 bg-success text-black rounded"
-							style={{ select: "#FF0000" }}
-							ref={priceRef}
-							onClick={handleClick}
-							onChange={handleOptions}
-						>
-							{priceOptions.map((i) => {
-								return (
-									<option key={i} value={i}>
-										{i}
-									</option>
-								);
-							})}
-						</select>
-						<div className=" d-inline ms-2 h-100 w-20 fs-5">
-							₹{finalPrice}/-
-						</div>
-					</div>
-					<hr></hr>
-					<button
-						className={`btn btn-success justify-center ms-2 `}
-						onClick={handleAddToCart}
+
+				<CardContent>
+					<Typography gutterBottom variant="h6" component="div">
+						{props.foodName}
+					</Typography>
+					<Typography variant="subtitle1" color="text.secondary" mt={1}>
+						₹{finalPrice}/-
+					</Typography>
+				</CardContent>
+
+				<CardActions>
+					<ExpandMore
+						expand={expanded}
+						onClick={handleExpandClick}
+						aria-expanded={expanded}
+						aria-label="show more"
 					>
-						Add to Cart
-					</button>
-				</div>
-			</div>
-		</div>
+						<Icon icon="ic:outline-expand-more" />
+					</ExpandMore>
+					<IconButton onClick={handleAddToCart} sx={{ ml: "auto" }}>
+						<Icon icon="ic:outline-add-shopping-cart" />
+					</IconButton>
+				</CardActions>
+				<Collapse in={expanded} timeout="auto" unmountOnExit>
+					<CardContent>
+						<Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+							{props.description}
+						</Typography>
+						<ButtonGroup sx={{ height: 34 }}>
+							<Button
+								aria-label="reduce"
+								onClick={() => {
+									setQty(Math.max(qty - 1, 1));
+								}}
+								onChange={handleQty}
+								size="small"
+							>
+								<Icon icon="ic:outline-remove" width={18} />
+							</Button>
+							<Button value={qty} onChange={handleQty} size="small">
+								{qty}
+							</Button>
+							<Button
+								aria-label="increase"
+								onClick={() => {
+									setQty(qty + 1);
+								}}
+								onChange={handleQty}
+								size="small"
+							>
+								<Icon icon="ic:outline-add" width={18} />
+							</Button>
+						</ButtonGroup>
+						<FormControl sx={{ m: 1, minWidth: 92, top: -8 }} size="small">
+							<InputLabel
+								id="demo-select-small"
+								sx={{ fontSize: 12, color: "primary.main" }}
+							>
+								Size
+							</InputLabel>
+							<Select
+								labelId="demo-select-small"
+								id="demo-select-small"
+								value={size}
+								label="Size"
+								sx={{ fontSize: 12, color: "primary.main" }}
+								onClick={handleClick}
+								onChange={handleOptions}
+							>
+								{priceOptions.map((i) => {
+									return (
+										<MenuItem sx={{ fontSize: 12 }} key={i} value={i}>
+											{i}
+										</MenuItem>
+									);
+								})}
+							</Select>
+						</FormControl>
+					</CardContent>
+				</Collapse>
+			</Card>
+			<select style={{ display: "none" }} ref={priceRef}>
+				{/* temporary ref fix */}
+				{priceOptions.map((i) => {
+					return (
+						<option key={i} value={i}>
+							{i}
+						</option>
+					);
+				})}
+			</select>
+		</React.Fragment>
 	);
 }
 //

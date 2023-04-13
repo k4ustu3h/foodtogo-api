@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
-import Card from "../components/Card";
-// import Carousel from '../components/Carousel'
+import Grid from "@mui/material/Unstable_Grid2";
+import FoodItems from "../components/Card";
 import Footer from "../components/Footer";
 import Navbar from "../components/NavBar";
+import { ThemeProvider } from "@mui/material";
+import { themeOptions } from "../styles/themeOptions";
+
 export default function Home() {
 	const [foodCat, setFoodCat] = useState([]);
 	const [foodItems, setFoodItems] = useState([]);
@@ -27,7 +30,7 @@ export default function Home() {
 	}, []);
 
 	return (
-		<div>
+		<ThemeProvider theme={themeOptions}>
 			<div>
 				<Navbar />
 			</div>
@@ -132,40 +135,39 @@ export default function Home() {
 												"-webkit-linear-gradient(left,rgb(0, 255, 137),rgb(0, 0, 0))",
 										}}
 									/>
-									{foodItems !== [] ? (
-										foodItems
-											.filter(
-												(items) =>
-													items.CategoryName === data.CategoryName &&
-													items.name
-														.toLowerCase()
-														.includes(search.toLowerCase())
-											)
-											.map((filterItems) => {
-												return (
-													<div
-														key={filterItems._id}
-														className="col-12 col-md-6 col-lg-3"
-													>
-														{console.log(filterItems.url)}
-														<Card
-															foodName={filterItems.name}
-															item={filterItems}
-															options={filterItems.options[0]}
-															ImgSrc={filterItems.img}
-														></Card>
-													</div>
-												);
-											})
-									) : (
-										<div> No Such Data </div>
-									)}
+									<Grid container spacing={4}>
+										{foodItems !== [] ? (
+											foodItems
+												.filter(
+													(items) =>
+														items.CategoryName === data.CategoryName &&
+														items.name
+															.toLowerCase()
+															.includes(search.toLowerCase())
+												)
+												.map((filterItems) => {
+													return (
+														<Grid key={filterItems._id}>
+															<FoodItems
+																foodName={filterItems.name}
+																description={filterItems.description}
+																item={filterItems}
+																options={filterItems.options[0]}
+																ImgSrc={filterItems.img}
+															></FoodItems>
+														</Grid>
+													);
+												})
+										) : (
+											<div> No Such Data </div>
+										)}
+									</Grid>
 								</div>
 							);
 					  })
 					: ""}
 			</div>
 			<Footer />
-		</div>
+		</ThemeProvider>
 	);
 }
