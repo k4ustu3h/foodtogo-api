@@ -175,14 +175,14 @@ export default function FoodItems(props) {
 						</ButtonGroup>
 						<FormControl sx={{ m: 1, minWidth: 92, top: -8 }} size="small">
 							<InputLabel
-								id="demo-select-small"
+								id="size-options"
 								sx={{ fontSize: 12, color: "primary.main" }}
 							>
 								Size
 							</InputLabel>
 							<Select
-								labelId="demo-select-small"
-								id="demo-select-small"
+								labelId="size-options"
+								id="size-options"
 								value={size}
 								label="Size"
 								sx={{ fontSize: 12, color: "primary.main" }}

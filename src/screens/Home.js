@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Grid from "@mui/material/Unstable_Grid2";
-import FoodItems from "../components/Card";
+import FoodItems from "../components/FoodItems";
 import Footer from "../components/Footer";
 import Navbar from "../components/NavBar";
 import { ThemeProvider } from "@mui/material";
