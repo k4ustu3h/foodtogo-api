@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 require("dotenv").config();
 
-const mongoURI = process.env.MONGODB_CONNECTION_STRING;
+const mongoURI = process.env.MONGODB_URI;
 
 module.exports = function (callback) {
 	mongoose.connect(mongoURI, { useNewUrlParser: true }, async (err, result) => {

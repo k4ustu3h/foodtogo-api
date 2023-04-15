@@ -6,10 +6,12 @@ global.foodData = require("./db")(function call(err, data, CatData) {
 });
 
 const express = require("express");
+const connectDB = require("./db");
 const app = express();
 const port = 5000;
+
 app.use((req, res, next) => {
-	res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+	res.setHeader("Access-Control-Allow-Origin", "*");
 	res.header(
 		"Access-Control-Allow-Headers",
 		"Origin, X-Requested-With, Content-Type, Accept"
@@ -18,12 +20,14 @@ app.use((req, res, next) => {
 });
 app.use(express.json());
 
-app.get("/", (req, res) => {
-	res.send("Hello World!");
+connectDB((err) => {
+	if (err) {
+		console.error(err);
+	} else {
+		app.listen(port, () => {
+			console.log("listening for requests");
+		});
+	}
 });
 
 app.use("/api", require("./api"));
-
-app.listen(port, () => {
-	console.log(`foodtogo/api listening on http://localhost:${port}`);
-});
