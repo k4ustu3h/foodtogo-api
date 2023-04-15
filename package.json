@@ -1,56 +1,34 @@
 {
-  "name": "foodtogo",
+  "name": "foodtogo-api",
   "version": "0.0.1",
-  "private": true,
-  "dependencies": {
-    "@emotion/react": "^11.10.6",
-    "@emotion/styled": "^11.10.6",
-    "@mui/material": "^5.11.16",
-    "@testing-library/jest-dom": "5.16.5",
-    "@testing-library/react": "14.0.0",
-    "@testing-library/user-event": "14.4.3",
-    "axios": "^1.3.5",
-    "bootstrap": "5.2.3",
-    "bootstrap-dark-5": "^1.1.3",
-    "dotenv": "^16.0.3",
-    "express-validator": "6.15.0",
-    "react": "18.2.0",
-    "react-bootstrap": "2.7.2",
-    "react-dom": "18.2.0",
-    "react-router-dom": "6.10.0",
-    "react-scripts": "5.0.1",
-    "web-vitals": "3.3.1"
-  },
+  "main": "index.js",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "test": "nodemon ./index.js -V"
   },
   "author": "Jeenal Vora, Kaustubh Ladiya",
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.0.3",
+    "express": "4.18.2",
+    "express-validator": "^6.14.0",
+    "json-stringify-safe": "^5.0.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.10.5",
+    "razorpay": "^2.8.6"
   },
   "devDependencies": {
-    "@iconify/react": "^4.1.0",
+    "nodemon": "^2.0.16",
     "prettier": "2.8.7"
   },
-  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
-  "main": "index.js",
-  "license": "GPL-3.0-or-later"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/k4ustu3h/foodtogo-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/k4ustu3h/foodtogo-api/issues"
+  },
+  "homepage": "https://github.com/k4ustu3h/foodtogo-api#readme",
+  "description": ""
 }

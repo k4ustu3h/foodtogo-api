@@ -1,14 +1,14 @@
 const express = require("express");
-const User = require("../models/User");
-const Order = require("../models/Orders");
+const User = require("./models/user");
+const Order = require("./models/orders");
 const router = express.Router();
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 var jwt = require("jsonwebtoken");
 const axios = require("axios");
-const fetch = require("../middleware/fetchdetails");
+const fetch = require("./middleware/fetchdetails");
 const Razorpay = require("razorpay");
-require("dotenv").config({ path: "../.env" });
+require("dotenv").config();
 
 const jwtSecret = process.env.JWT_SECRET;
 

@@ -22,8 +22,8 @@ app.get("/", (req, res) => {
 	res.send("Hello World!");
 });
 
-app.use("/api/auth", require("./Routes/Auth"));
+app.use("/api", require("./api"));
 
 app.listen(port, () => {
-	console.log(`foodtogo/backend listening on http://localhost:${port}`);
+	console.log(`foodtogo/api listening on http://localhost:${port}`);
 });
