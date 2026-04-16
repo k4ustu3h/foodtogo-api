@@ -4,13 +4,20 @@ const Order = require("./models/orders");
 const router = express.Router();
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
-var jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 const axios = require("axios");
 const fetch = require("./middleware/fetchdetails");
 const Razorpay = require("razorpay");
+const mongoose = require("mongoose");
 require("dotenv").config();
 
 const jwtSecret = process.env.JWT_SECRET;
+
+const ensureDbConnected = async () => {
+	if (mongoose.connection.readyState !== 1) {
+		await mongoose.connect(process.env.MONGODB_URI);
+	}
+};
 
 router.post(
 	"/createuser",
@@ -30,31 +37,26 @@ router.post(
 		const salt = await bcrypt.genSalt(10);
 		let securePass = await bcrypt.hash(req.body.password, salt);
 		try {
-			await User.create({
+			const user = await User.create({
 				firstName: req.body.firstName,
 				lastName: req.body.lastName,
 				password: securePass,
 				email: req.body.email,
 				location: req.body.location,
-			})
-				.then((user) => {
-					const data = {
-						user: {
-							id: user.id,
-						},
-					};
-					const authToken = jwt.sign(data, jwtSecret);
-					success = true;
-					res.json({ success, authToken });
-				})
-				.catch((err) => {
-					console.log(err);
-					res.json({ error: "Please enter a unique value." });
-				});
+			});
+
+			const data = { user: { id: user.id } };
+			const authToken = jwt.sign(data, jwtSecret);
+			success = true;
+			res.json({ success, authToken });
 		} catch (error) {
 			console.error(error.message);
+			res.status(500).json({
+				success: false,
+				error: "Please enter a unique value.",
+			});
 		}
-	}
+	},
 );
 
 router.post(
@@ -76,106 +78,88 @@ router.post(
 			if (!user) {
 				return res
 					.status(400)
-					.json({ success, error: "Try Logging in with correct the email" });
+					.json({ success, error: "Invalid Credentials" });
 			}
 
 			const pwdCompare = await bcrypt.compare(password, user.password);
 			if (!pwdCompare) {
 				return res
 					.status(400)
-					.json({ success, error: "Try Logging in with correct the password" });
+					.json({ success, error: "Invalid Credentials" });
 			}
-			const data = {
-				user: {
-					id: user.id,
-				},
-			};
+
+			const data = { user: { id: user.id } };
 			success = true;
 			const authToken = jwt.sign(data, jwtSecret);
 			res.json({ success, authToken });
 		} catch (error) {
 			console.error(error.message);
-			res.send("Server Error");
+			res.status(500).send("Server Error");
 		}
-	}
+	},
 );
 
 router.post("/getuser", fetch, async (req, res) => {
 	try {
-		const userId = req.user.id;
-		const user = await User.findById(userId).select("-password");
+		const user = await User.findById(req.user.id).select("-password");
 		res.send(user);
 	} catch (error) {
 		console.error(error.message);
-		res.send("Server Error");
+		res.status(500).send("Server Error");
 	}
 });
 
 router.post("/getlocation", async (req, res) => {
 	try {
-		let lat = req.body.latlong.lat;
-		let long = req.body.latlong.long;
-		console.log(lat, long);
-		let location = await axios
-			.get(
-				"https://api.opencagedata.com/geocode/v1/json?q=" +
-					lat +
-					"+" +
-					long +
-					"&key=74c89b3be64946ac96d777d08b878d43"
-			)
-			.then(async (res) => {
-				console.log(res.data.results);
-				let response = res.data.results[0].components;
-				console.log(response);
-				let { village, county, state_district, state, postcode } = response;
-				return String(
-					village +
-						"," +
-						county +
-						"," +
-						state_district +
-						"," +
-						state +
-						"\n" +
-						postcode
-				);
-			})
-			.catch((error) => {
-				console.error(error);
-			});
+		let { lat, long } = req.body.latlong;
+		const geoRes = await axios.get(
+			`https://api.opencagedata.com/geocode/v1/json?q=${lat}+${long}&key=74c89b3be64946ac96d777d08b878d43`,
+		);
+		let response = geoRes.data.results[0].components;
+		let { village, county, state_district, state, postcode } = response;
+		let location = `${village || ""}, ${county || ""}, ${
+			state_district || ""
+		}, ${state || ""}\n${postcode || ""}`;
 		res.send({ location });
 	} catch (error) {
 		console.error(error.message);
-		res.send("Server Error");
+		res.status(500).send("Server Error");
 	}
 });
+
 router.post("/foodData", async (req, res) => {
 	try {
-		res.send([global.foodData, global.foodCategory]);
+		await ensureDbConnected();
+
+		const foodItemsCollection =
+			mongoose.connection.db.collection("food_items");
+		const foodItems = await foodItemsCollection.find({}).toArray();
+
+		const foodCategoryCollection =
+			mongoose.connection.db.collection("foodCategory");
+		const foodCategory = await foodCategoryCollection.find({}).toArray();
+
+		res.status(200).send([foodItems, foodCategory]);
 	} catch (error) {
-		console.error(error.message);
-		res.send("Server Error");
+		console.error("Error fetching food data:", error.message);
+		res.status(500).send("Server Error");
 	}
 });
 
 router.post("/orders", async (req, res) => {
 	try {
 		const instance = new Razorpay({
-			key_id: process.env.RAZORPAY_KEY_ID, // YOUR RAZORPAY KEY
-			key_secret: process.env.RAZORPAY_SECRET, // YOUR RAZORPAY SECRET
+			key_id: process.env.RAZORPAY_KEY_ID,
+			key_secret: process.env.RAZORPAY_SECRET,
 		});
 
 		const options = {
 			amount: 50000,
 			currency: "INR",
-			receipt: "receipt_order_74394",
+			receipt: `receipt_${Date.now()}`,
 		};
 
 		const order = await instance.orders.create(options);
-
-		if (!order) return res.status(500).send("Some error occured");
-
 		res.json(order);
 	} catch (error) {
 		res.status(500).send(error);
@@ -183,58 +167,49 @@ router.post("/orders", async (req, res) => {
 });
 
 router.post("/orderData", async (req, res) => {
-	const { razorpayPaymentId, razorpayOrderId, razorpaySignature } = req.body;
-	let data = req.body.order_data;
-	await data.splice(0, 0, {
-		Order_date: req.body.order_date,
-		Order_time: req.body.order_time,
+	const {
+		razorpayPaymentId,
+		razorpayOrderId,
+		razorpaySignature,
+		order_data,
+		email,
+		order_date,
+		order_time,
+	} = req.body;
+
+	let data = [...order_data];
+	data.splice(0, 0, {
+		Order_date: order_date,
+		Order_time: order_time,
 		razorpayDetails: {
 			orderId: razorpayOrderId,
 			paymentId: razorpayPaymentId,
 			signature: razorpaySignature,
 		},
 	});
-	console.log(req.body.email);
-	let eId = await Order.findOne({ email: req.body.email });
-	console.log(eId);
-	if (eId === null) {
-		try {
-			console.log(data);
-			console.log("1231242343242354", req.body.email);
-			await Order.create({
-				email: req.body.email,
-				order_data: [data],
-			}).then(() => {
-				res.json({
-					success: true,
-				});
-			});
-		} catch (error) {
-			console.log(error.message);
-			res.send("Server Error", error.message);
-		}
-	} else {
-		try {
+
+	try {
+		let eId = await Order.findOne({ email });
+		if (eId === null) {
+			await Order.create({ email, order_data: [data] });
+		} else {
 			await Order.findOneAndUpdate(
-				{ email: req.body.email },
-				{ $push: { order_data: data } }
-			).then(() => {
-				res.json({ success: true });
-			});
-		} catch (error) {
-			console.log(error.message);
-			res.send("Server Error", error.message);
+				{ email },
+				{ $push: { order_data: data } },
+			);
 		}
+		res.json({ success: true });
+	} catch (error) {
+		res.status(500).send(error.message);
 	}
 });
 
 router.post("/myOrderData", async (req, res) => {
 	try {
-		console.log(req.body.email);
 		let eId = await Order.findOne({ email: req.body.email });
 		res.json({ orderData: eId });
 	} catch (error) {
-		res.send("Error", error.message);
+		res.status(500).send(error.message);
 	}
 });
 
